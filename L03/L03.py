@@ -1,7 +1,7 @@
 #========================================#
 # ESSC 4510 Tutorial 03 Python Script
-# Name:
-# Student ID:
+# Name: Li Lok Hang
+# Student ID: 1155092891
 # Sample Script made by Benjamin Loi
 #========================================#
 
@@ -92,7 +92,7 @@ lon_array = data_3_3["lon"]
 
 #========================================#
 
-# Locate Darwin (Lat: -12.46, Lon: 130.84) from the data, 
+# Locate Darwin (Lat: -12.46, Lon: 130.84) from the data,
 # by manipulating whole array operation, np.abs(), <>.argmin(),
 # to search the nearest lat/lon indices.
 #========================================#
@@ -112,7 +112,7 @@ print("Nearest x-index:", nearest_x)
 # by using double for loop to fill in a NaN array,
 # that has the same lat/lon extent as the slp array.
 #========================================#
-slp_corr = np.empty([len(lon_array), len(lat_array)]) 
+slp_corr = np.empty([len(lon_array), len(lat_array)])
 # Notice that slp_corr has the shape (row = nlon) * (column = nlat).
 # Make sure that all data are initially NaN to deal with potential problems during later calculation.
 slp_corr[:] = np.nan
