@@ -31,26 +31,29 @@ print(prec_HK)
 
 # Select all July dates
 #========================================#
-dates = prec_HK["date"]
-# The dates are in YYYYMMDD.
-# Two possible approaches:
-# 1. Convert the dates into string and check if the MM substring is 07,
-# 2. Use modulus to get the last 4 digits and check if they are within the range of 700-799.
-# The July dates should be in the form of a boolean array, with respect to all dates.
 
+def get_a_rainy_day_prob(prec):
+    ''' This functions requires a 'prec_XX' precipitation data variable,
+        that is in a form of xarray format. Outputs ONE rainy day probability. '''
+    dates = prec["date"]
+    # The dates are in YYYYMMDD.
+    # Two possible approaches:
+    # 1. Convert the dates into string and check if the MM substring is 07,
+    # 2. Use modulus to get the last 4 digits and check if they are within the range of 700-799.
+    # The July dates should be in the form of a boolean array, with respect to all dates.
+    mod = (dates % 1000).values # taking modulus
+    bool_array = (700 < mod) & (mod < 800) # save as boolean array
 
+    #========================================#
 
-#========================================#
-
-# Calculate the probabilities of having a rainy day in July,
-# which is the amounts of rainy days in July over the total numbers of days in July.
-# Use the boolean array obtained in above selection for filtering, and
-# apply array comparison to get the dates when the rainfall is > 1mm.
-# Something along the lines like <prec>[<July dates>] and ... > 1.
-# The numbers of True in an array is simply given by np.sum() or np.count_nonzero().
-#========================================#
-
-
+    # Calculate the probabilities of having a rainy day in July,
+    # which is the amounts of rainy days in July over the total numbers of days in July.
+    # Use the boolean array obtained in above selection for filtering, and
+    # apply array comparison to get the dates when the rainfall is > 1mm.
+    # Something along the lines like <prec>[<July dates>] and ... > 1.
+    # The numbers of True in an array is simply given by np.sum() or np.count_nonzero().
+    #========================================#
+    return np.sum(prec[bool_array] > 1) / len(prec[bool_array]) # calculate the probability
 
 #========================================#
 
@@ -58,8 +61,20 @@ dates = prec_HK["date"]
 # You may want to compute the binomial coefficients, or nCr.
 # Some approaches: https://stackoverflow.com/questions/3025162/statistics-combinations-in-python
 #========================================#
+    # probability that a day is a rainy day in July
+    p_HK = get_a_rainy_day_prob(prec_HK)
+    p_BJ = get_a_rainy_day_prob(prec_BJ)
+    p_WH = get_a_rainy_day_prob(prec_WH)
 
+    # probability that every day is a rainy day in July
+    print(p_HK ** 31) #3.2a
+    print(p_BJ ** 31) #3.2b
+    print(p_WH ** 31) #3.2c
 
+    # probability that at least 25 days are rainy days in July
+    # = 1 - probability that less than 25 days are rainy days
+    # note that scipy.stats.binom.cdf(k, n, p), where k = 25, n = 31, p = p_HK respectively
+    print( 1 - scipy.stats.binom.cdf(25, 31, p_HK) ) #3.2d
 
 #========================================#
 
@@ -83,9 +98,11 @@ lon_array = data_3_3["lon"]
 #========================================#
 lat_Darwin = -12.46
 lon_Darwin = 130.84
-nearest_y = np.abs(lat_Darwin - lat_array).argmin()
+nearest_y = int(np.abs(lat_Darwin - lat_array).argmin())
 print("Nearest y-index:", nearest_y)
 # Repeat the same for longitude.
+nearest_x = int(np.abs(lon_Darwin - lon_array).argmin())
+print("Nearest x-index:", nearest_x)
 
 
 
@@ -105,7 +122,9 @@ for i in np.arange(len(lon_array)):
         # and compared against the Darwin slp at nearest_lat, nearest_lon.
         # Use scipy.stats.pearsonr(<>, <>)[0] to compute the correlation,
         # and assign the answer to the empty array slp_corr.
-        pass
+        Darwin_slp = slp[{"lon": nearest_x, "lat": nearest_y}]
+        Grid_slp = slp[{"lon": i, "lat": j}]
+        slp_corr[i][j] = scipy.stats.pearsonr(Darwin_slp, Grid_slp)[0]
 
 
 
@@ -116,7 +135,8 @@ for i in np.arange(len(lon_array)):
 #========================================#
 fig = plt.figure()
 # Mercator Projection
-ax_map = fig.add_subplot(1,1,1, projection=ccrs.PlateCarree(central_longitude=0.0))
+projection = ccrs.PlateCarree(central_longitude=0.0)
+ax_map = fig.add_subplot(1,1,1, projection=projection)
 ax_map.coastlines()
 
 
@@ -128,7 +148,6 @@ ax_map.coastlines()
 ct = ax_map.contour(lon_array, lat_array, slp_corr.T, # T stands for transpose.
                     np.linspace(-1, 1, 11)) # the last argument indicates the contour intervals.
 ax_map.clabel(ct)
-plt.show()
 
 
 
@@ -141,7 +160,22 @@ plt.show()
 
 # Add legends, titles, axis labels.
 #========================================#
+import matplotlib.patches as mpatches # add legend manually
+from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter # to format longitude and latitudes
 
+# Adding legend
+patch = mpatches.Patch(label = 'Pearson correlation between point and Darwin')
+ax_map.legend(handles=[patch])
+
+# Adding title
+plt.title('Correlation map for the city Darwin')
+
+# Adding axis labels
+ax_map.set_xticks(np.linspace(-180, 180, 5), crs=projection)
+ax_map.set_yticks(np.linspace(-90, 90, 5), crs=projection)
+ax_map.xaxis.set_major_formatter(LongitudeFormatter())
+ax_map.yaxis.set_major_formatter(LatitudeFormatter())
+plt.show()
 
 
 #========================================#
