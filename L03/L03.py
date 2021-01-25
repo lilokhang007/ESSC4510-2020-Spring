@@ -31,6 +31,14 @@ print(prec_HK)
 
 # Select all July dates
 #========================================#
+dates = prec_HK["date"]
+# Remark: The dates are all in July. So no need for additional selection.
+# You can ignore the comments below.
+# The dates are in YYYYMMDD.
+# Two possible approaches:
+# 1. Convert the dates into string and check if the MM substring is 07,
+# 2. Use modulus to get the last 4 digits and check if they are within the range of 700-799.
+# The July dates should be in the form of a boolean array, with respect to all dates.
 
 def get_a_rainy_day_prob(prec):
     ''' This functions requires a 'prec_XX' precipitation data variable,

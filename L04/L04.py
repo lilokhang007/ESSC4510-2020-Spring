@@ -225,6 +225,9 @@ for i, item in enumerate(['prec_BJ', 'prec_WH', 'prec_HK', 'temp_BJ', 'temp_WH',
 # Ex 4.3
 #================================================================================#
 # START OF FUNCTION
+# Alternatively, you can use some functions that
+# compute auto-corrlation directly, and
+# no need to create a function as below.
 #================================================================================#
 
 def get_x_y(city_name, k):
