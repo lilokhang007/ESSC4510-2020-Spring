@@ -145,7 +145,10 @@ ax_map.coastlines()
 
 # Draw the correlation contour plot by <>.contour(<lon>, <lat>, <values>)
 #========================================#
-ct = ax_map.contour(lon_array, lat_array, slp_corr.T, # T stands for transpose.
+from cartopy.util import add_cyclic_point
+data, new_lon_array = add_cyclic_point(slp_corr.T, coord=lon_array) # fixes the cyclic point problem
+
+ct = ax_map.contour(new_lon_array, lat_array, data, # put in the fixed data and lon array
                     np.linspace(-1, 1, 11)) # the last argument indicates the contour intervals.
 ax_map.clabel(ct)
 
@@ -158,23 +161,22 @@ ax_map.clabel(ct)
 # from cartopy.util import add_cyclic_point may help,
 # Reference: https://scitools.org.uk/cartopy/docs/v0.15/cartopy/util/util.html
 
+
 # Add legends, titles, axis labels.
 #========================================#
-import matplotlib.patches as mpatches # add legend manually
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter # to format longitude and latitudes
 
-# Adding legend
-patch = mpatches.Patch(label = 'Pearson correlation between point and Darwin')
-ax_map.legend(handles=[patch])
-
 # Adding title
-plt.title('Correlation map for the city Darwin')
+plt.title('Pearson correlation between any point and Darwin')
 
 # Adding axis labels
 ax_map.set_xticks(np.linspace(-180, 180, 5), crs=projection)
 ax_map.set_yticks(np.linspace(-90, 90, 5), crs=projection)
 ax_map.xaxis.set_major_formatter(LongitudeFormatter())
 ax_map.yaxis.set_major_formatter(LatitudeFormatter())
+
+# Add colorbar
+plt.colorbar(plt.cm.ScalarMappable())
 plt.show()
 
 
