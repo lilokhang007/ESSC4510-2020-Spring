@@ -30,6 +30,7 @@ pres_nEl = np.array([1010.9, 1011.2, 1011.9, 1011.2, 1011.1,
                     1012.0, 1011.4, 1010.9, 1011.5, 1011.0,
                     1011.2, 1012.5, 1011.1, 1011.8, 1010.6])
 n_years_nEl = len(pres_nEl)
+
 #========================================#
 
 # Carry out the Wilcoxon-Mann-Whitney test,
@@ -38,7 +39,10 @@ n_years_nEl = len(pres_nEl)
 # and the second one is the p-value.
 # Reference: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.mannwhitneyu.html.
 #========================================#
-
+U, p = scipy.stats.mannwhitneyu(pres_El, pres_nEl)
+mu_U = n_years_El * n_years_nEl / 2
+sigma_U = (mu_U / 6 * (n_years_El + n_years_nEl + 1)) ** (1/2)
+z = (U - mu_U)/sigma_U
 
 
 #========================================#
@@ -46,14 +50,16 @@ n_years_nEl = len(pres_nEl)
 # Ex 6.2
 # June Rainfall for the region.
 #========================================#
-rainfall = np.array([43, 10, 4, 0, 2, 
-                    np.nan, 31, 0, 0, 0, 
+rainfall = np.array([43, 10, 4, 0, 2,
+                    np.nan, 31, 0, 0, 0,
                     2, 3, 0, 4, 15,
                     2, 0, 1, 127, 2])
+
 #========================================#
+rainfall = rainfall[~np.isnan(rainfall)] # drop the nan because it will cause problem in the following calculations
 
 # Resampling to produce the bootstraps,
-# either by np.random.choice(), 
+# either by np.random.choice(),
 # or sklearn.utils.resample() (needed to import sklearn),
 # both of them requires the argument "replace" set to True,
 # and "size" specified.
@@ -62,15 +68,13 @@ rainfall = np.array([43, 10, 4, 0, 2,
 # At each iteration, evaluate the skewness,
 # by scipy.stats.skew(), storing it into an array.
 #========================================#
-# Initializing an empty array filled with garbage values,
-# and output the computed skewness into it.
 bootstrap_size = 1000 # Change as you like.
-skewness_bootstrap = np.full([bootstrap_size], -999)
-for t in np.arange(bootstrap_size):
-    # Calculating the skewness.
-    pass
 
-
+# one_line for loop: first make a sample, then calculate skewness, repeat.
+skewness_bootstrap = np.array([
+    scipy.stats.skew(np.random.choice(rainfall, len(rainfall), replace=True))
+    for i in range(bootstrap_size)
+])
 
 #========================================#
 
@@ -79,7 +83,6 @@ for t in np.arange(bootstrap_size):
 # by np.percentile(), or otherwise.
 # The range is then the desired 95% confidence interval.
 #========================================#
-
-
+output_range = [np.percentile(skewness_bootstrap, 2.5), np.percentile(skewness_bootstrap, 97.5)]
 
 #========================================#
