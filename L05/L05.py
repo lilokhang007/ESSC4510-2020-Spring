@@ -33,7 +33,7 @@ n_years_nEl = len(temp_nEl)
 #========================================#
 
 # Evaluate the combined variance for the sample means,
-# which i (s_1^2/n_1 + s_2^2/n_2)^1/2.
+# which is (s_1^2/n_1 + s_2^2/n_2).
 #========================================#
 s_El = np.std(temp_El)
 s_nEl = np.std(temp_nEl)
@@ -43,6 +43,7 @@ std_combined = (s_El ** 2 / n_years_El + s_nEl ** 2 / n_years_nEl) ** (1/2)
 
 # Compute the p-value by scipy.stats.ttest_ind(<data1>, <data2>).
 # Reference: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_ind.html.
+# The argument "equal_var" should be set to a suitable boolean value.
 # The second output is the required p-value.
 #========================================#
 t_ex5_1, p_value_ex5_1 = scipy.stats.ttest_ind(temp_El, temp_nEl)
@@ -52,7 +53,7 @@ t_ex5_1, p_value_ex5_1 = scipy.stats.ttest_ind(temp_El, temp_nEl)
 
 # Calculate the 95% confidence interval for the t-test.
 # The null hypothesis has a mean of zero for Delta x = x_1 - x_2.
-# Plugging the combined variance computed above,
+# Plugging the combined std computed above,
 # and ddof = min(n_1, n_2) - 1 into,
 # the function scipy.stats.t.interval(0.95, <ddof>, 0, <pooled std>).
 # Reference: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.t.html.
