@@ -35,30 +35,50 @@ data_9 = pd.DataFrame({"Temp": [26.1, 24.5, 24.8, 24.5, 24.1, 24.3, 26.4, 24.9, 
 # Repeat with n times.
 # Use scipy.stats.linregress(), or statsmodels.api.OLS().
 #========================================#
+
+fig = plt.figure() # create figure
+ax = fig.add_subplot()
+x = np.arange(1005, 1015, 0.05)
+
 n = len(data_9)
 temp = data_9["Temp"]
 pres = data_9["Pres"]
 # An array to store the prediction MSE for each iteration.
 MSE_predict = np.zeros(n)
+params = np.zeros(n)
 for i in np.arange(n):
     # Choose all entries except the one with index i.
     temp_leaveOne = np.delete(temp.values, i)
     pres_leaveOne = np.delete(pres.values, i)
     # Linear Regression with temp_leaveOne and pres_leaveOne.
+    ols = sm.OLS(temp_leaveOne, sm.add_constant(pres_leaveOne)).fit()
 
 
-
-    # Calculate the error between the prediction, and 
+    # Calculate the error between the prediction, and
     # the true predictand for the left out entry.
+    MSE_predict[i] = (ols.predict([1, pres.values[i]]) - temp.values[i]) ** 2
 
+    # Plot L09 regression lines
+    ax.plot(x, [predict for predict in ols.predict([1, x])[0]], label='_', color = 'blue', ls = '-')
 
+# Get the MSE by taking mean
+MSE = np.mean(MSE_predict)
 
-#========================================#
+# Plot L07 regression line
+# <-- COPY STUFF from L07 (START) -->
+Y = data_9["Temp"]
+X = sm.add_constant(data_9["Pres"]) # Adding the intercept term.
+ols = sm.OLS(Y, X).fit() # fit the model
 
-# Plot the regression lines as required.
-#========================================#
+pred = []
+for predict in ols.predict([1, x])[0]: # get the prediction interval in the lists
+    pred.append(predict)
+# <-- COPY STUFF from L07 (END) -->
 
-
-
+ax.plot(x, pred, label='regression line without leave-one-out-cross', color = 'red')
+ax.legend()
+ax.set_title('Regression Lines with and without leave-one-out-cross')  # set title
+ax.set_ylabel('June Temperature (deg C)')  # set ylabel
+ax.set_xlabel('June Pressure (mb)')  # set ylabel
 #========================================#
 

@@ -1,7 +1,7 @@
 #========================================#
 # ESSC 4510 Tutorial 05 Python Script
-# Name:
-# Student ID:
+# Name: Li Lok Hang
+# Student ID: 1155092891
 # Sample Script made by Benjamin Loi
 #========================================#
 
@@ -46,7 +46,7 @@ std_combined = (s_El ** 2 / n_years_El + s_nEl ** 2 / n_years_nEl) ** (1/2)
 # The argument "equal_var" should be set to a suitable boolean value.
 # The second output is the required p-value.
 #========================================#
-t_ex5_1, p_value_ex5_1 = scipy.stats.ttest_ind(temp_El, temp_nEl)
+t_ex5_1, p_value_ex5_1 = scipy.stats.ttest_ind(temp_El, temp_nEl, equal_var=False)
 
 
 #========================================#
